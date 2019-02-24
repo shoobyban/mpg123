@@ -186,14 +186,14 @@ func (d *Decoder) Feed(buf []byte) error {
 	return nil
 }
 
-// Skip will skip back and forth
-func (d *Decoder) Skip(i int) (int, error) {
-	offs := C.mpg123_seek(d.handle, C.longlong(i), 0)
+// Seek will skip back and forth
+func (d *Decoder) Seek(secs float64) (int64, error) {
+	offs := C.mpg123_seek_frame(d.handle, C.mpg123_timeframe(d.handle, C.double(secs)), 1)
 	var err error
 	if offs < 0 {
 		err = fmt.Errorf("Error seeking: %d", offs)
 	}
-	return int(offs), err
+	return int64(offs), err
 }
 
 // Stop will set done flag true, next read will return EOF
@@ -202,7 +202,7 @@ func (d *Decoder) Stop() {
 }
 
 // GetOffset will return current offset
-func (d *Decoder) GetOffset() int {
-	offs := C.mpg123_tell(d.handle)
-	return int(offs)
+func (d *Decoder) GetOffset() int64 {
+	offs := C.mpg123_tell_stream(d.handle)
+	return int64(offs)
 }
